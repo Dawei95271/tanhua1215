@@ -32,8 +32,13 @@ public class Sample {
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
         try {
             client.sendSmsWithOptions(sendSmsRequest, runtime);
-        } catch (Exception e){
-            e.printStackTrace();
+        } catch (TeaException error) {
+            // 如有需要，请打印 error
+            com.aliyun.teautil.Common.assertAsString(error.message);
+        } catch (Exception _error) {
+            TeaException error = new TeaException(_error.getMessage(), _error);
+            // 如有需要，请打印 error
+            com.aliyun.teautil.Common.assertAsString(error.message);
         }
     }
 }
