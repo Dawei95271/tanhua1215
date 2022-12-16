@@ -2,4 +2,4 @@ spring:
   application:
     name: tanhua-app-server
   profiles:
-    active: dev
+    active: dev #开发环境
