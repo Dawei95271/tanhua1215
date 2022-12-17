@@ -6,12 +6,10 @@ import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.tea.TeaException;
 import com.aliyun.teaopenapi.models.Config;
 
-import javax.xml.ws.Endpoint;
-
 /**
  * ali message sample
  */
-public class Sample {
+public class SmsSample {
 
 
     public static void main(String[] args_) throws Exception {
