@@ -7,15 +7,14 @@ import lombok.NoArgsConstructor;
 /**
  * @description:
  * @author: 16420
- * @time: 2022/12/16 17:08
+ * @time: 2022/12/19 12:01
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User extends BasePojo {
+public class BlackList extends BasePojo{
 
     private Long id;
-    private String mobile;
-    private String password;
-
+    private Long userId;
+    private Long blackUserId;
 }

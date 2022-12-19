@@ -17,6 +17,10 @@ public class UserApiImpl implements UserApi{
     @Autowired
     private UserMapper userMapper;
 
+    @Override
+    public void update(User user) {
+        userMapper.updateById(user);
+    }
 
     @Override
     public Long save(User user) {

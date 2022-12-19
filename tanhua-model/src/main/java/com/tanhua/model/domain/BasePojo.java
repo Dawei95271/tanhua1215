@@ -14,7 +14,7 @@ import java.util.Date;
  */
 
 @Data
-public abstract class BasePOJO implements Serializable {
+public abstract class BasePojo implements Serializable {
 
     @TableField(fill = FieldFill.INSERT) //自动填充
     private Date created;

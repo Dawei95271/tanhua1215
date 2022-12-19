@@ -9,4 +9,7 @@ public interface UserApi {
 
     // 保存user，返回userId
     Long save(User user);
+
+    // 根据id更新
+    void update(User user);
 }

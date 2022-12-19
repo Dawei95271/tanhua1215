@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfo extends BasePOJO{
+public class UserInfo extends BasePojo {
 
     /**
      * 由于userinfo表和user表之间是一对一关系
