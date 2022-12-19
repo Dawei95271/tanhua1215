@@ -78,6 +78,7 @@ public class LoginService {
 
     // 发送短信验证码
     public void sendMsg(String phone) {
+/*
         // 生成验证码
         String code = RandomStringUtils.randomNumeric(6);
         // 发送
@@ -85,6 +86,7 @@ public class LoginService {
         // 存入redis,5分钟失效
         String redisKey = Constants.SMS_CODE + phone;
         redisTemplate.opsForValue().set(redisKey, code, Constants.SMS_TIME, TimeUnit.MINUTES);
+*/
 
 
     }
