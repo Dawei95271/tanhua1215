@@ -39,7 +39,7 @@ public class OssTemplate {
         ossClient.putObject(ossProperties.getBucketName(), filename, is);
         ossClient.shutdown();
 
-        String url = ossProperties.getUrl() + filename;
+        String url = "Https://" + ossProperties.getBucketName() + "." + ossProperties.getEndpoint() + "/" + filename;
         return url;
 
 
