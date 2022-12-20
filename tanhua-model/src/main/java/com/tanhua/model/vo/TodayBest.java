@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serializable;
+
 /**
  * @description:
  * @author: 16420
@@ -16,7 +18,7 @@ import org.springframework.beans.BeanUtils;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TodayBest {
+public class TodayBest implements Serializable {
     private Long id;
     private String avatar;
     private String nickname;

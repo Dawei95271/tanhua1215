@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageResult {
+public class PageResult implements Serializable {
 
     private Integer page = 0; // 当前页
     private Integer pagesize = 10; // 每页大小
