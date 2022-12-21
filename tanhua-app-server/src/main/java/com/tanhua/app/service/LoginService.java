@@ -49,7 +49,8 @@ public class LoginService {
         }
 
         // 验证成功
-        redisTemplate.delete(Constants.SMS_CODE + phone);
+        // 测试不删除
+//        redisTemplate.delete(Constants.SMS_CODE + phone);
 
         User user = userApi.findByMobile(phone);
         boolean isNew = false;
