@@ -1,9 +1,11 @@
 package com.tanhua.model.vo;
 
 import com.tanhua.model.domain.BasePojo;
+import com.tanhua.model.domain.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
 
 @Data
 @NoArgsConstructor
@@ -21,4 +23,14 @@ public class UserInfoVo extends BasePojo {
     private String education; //学历
     private String profession; //行业
     private Integer marriage; //婚姻状态
+
+    public static UserInfoVo init(UserInfo info){
+        UserInfoVo vo = new UserInfoVo();
+        BeanUtils.copyProperties(info, vo);
+        // 只有age类型不同
+        if(info.getAge() != null){
+            vo.setAge(info.getAge().toString());
+        }
+        return vo;
+    }
 }

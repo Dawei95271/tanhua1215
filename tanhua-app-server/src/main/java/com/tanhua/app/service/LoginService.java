@@ -2,6 +2,7 @@ package com.tanhua.app.service;
 
 
 import com.tanhua.app.exception.BusinessException;
+import com.tanhua.autoconfig.template.HuanXinTemplate;
 import com.tanhua.autoconfig.template.SmsTemplate;
 import com.tanhua.commons.enums.ErrorResult;
 import com.tanhua.commons.utils.Constants;
@@ -35,6 +36,8 @@ public class LoginService {
     private RedisTemplate<String, String> redisTemplate;
     @DubboReference
     private UserApi userApi;
+    @Autowired
+    private HuanXinTemplate huanXinTemplate;
 
     // 验证登录
     public Map loginVerification(String phone, String code) {
@@ -62,6 +65,16 @@ public class LoginService {
             Long userId = userApi.save(user);
             user.setId(userId);
             isNew = true;
+
+            // 新用户，注册环信账户
+            String hxUser = "hx" + user.getId();
+            Boolean created = huanXinTemplate.createUser(hxUser, Constants.INIT_PASSWORD);
+            if(created){
+                // 环信用户创建成功，则更新数据
+                user.setHxUser(hxUser);
+                user.setHxPassword(Constants.INIT_PASSWORD);
+                userApi.update(user);
+            }
         }
         // token
         Map<String, Object> map = new HashMap<>();

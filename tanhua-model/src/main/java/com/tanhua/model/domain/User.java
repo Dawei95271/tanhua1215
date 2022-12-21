@@ -18,4 +18,7 @@ public class User extends BasePojo {
     private String mobile;
     private String password;
 
+    private String hxUser;
+    private String hxPassword;
+
 }

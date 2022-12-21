@@ -6,10 +6,9 @@ import com.tanhua.model.vo.PageResult;
 import com.tanhua.model.vo.TodayBest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * @description:
@@ -22,6 +21,35 @@ public class TanhuaController {
 
     @Autowired
     private TanhuaService tanhuaService;
+
+    /**
+     * 回复陌生人问题
+     */
+    @PostMapping("strangerQuestions")
+    public ResponseEntity strangerQuestions(@RequestBody Map map){
+        Long userId = Long.valueOf(map.get("userId").toString());
+        String reply = (String) map.get("reply");
+        tanhuaService.strangerQuestions(userId, reply);
+        return ResponseEntity.ok(null);
+    }
+
+    /**
+     * 查询陌生人问题
+     */
+    @GetMapping("strangerQuestions")
+    public ResponseEntity strangerQuestions(Long userId){
+        String content = tanhuaService.strangerQuestions(userId);
+        return ResponseEntity.ok(content);
+    }
+
+    /**
+     * 查看佳人信息
+     */
+    @GetMapping("{id}/personalInfo")
+    public ResponseEntity personalInfo(@PathVariable("id") Long userId){
+        TodayBest vo = tanhuaService.personalInfo(userId);
+        return ResponseEntity.ok(vo);
+    }
 
     /**
      * 分页好友推荐列表

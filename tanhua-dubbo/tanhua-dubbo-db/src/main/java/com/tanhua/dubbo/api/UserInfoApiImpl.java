@@ -29,11 +29,17 @@ public class UserInfoApiImpl implements UserInfoApi{
         qw.in("id", ids);
         // 添加筛选条件
         if(info != null){
+            // 年纪小于
             if(info.getAge() != null){
                 qw.lt("age", info.getAge());
             }
+            // 性别相同
             if(StrUtil.isNotEmpty(info.getGender())){
                 qw.eq("gender", info.getGender());
+            }
+            // 昵称模糊查询
+            if(StrUtil.isNotEmpty(info.getNickname())){
+                qw.like("nickname", info.getNickname());
             }
         }
         List<UserInfo> list = userInfoMapper.selectList(qw);

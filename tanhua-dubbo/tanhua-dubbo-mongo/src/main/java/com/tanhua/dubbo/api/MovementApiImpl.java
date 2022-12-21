@@ -58,6 +58,7 @@ public class MovementApiImpl implements MovementApi{
 
     @Override
     public PageResult findFriendMovement(Long userId, Integer page, Integer pagesize) {
+        // 根据时间线查询的，
         // 时间线里有自己，动态可见
         Query query = Query.query(Criteria.where("friendId").is(userId));
         long count = mongoTemplate.count(query, MovementTimeLine.class);

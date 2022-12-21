@@ -22,6 +22,21 @@ public class RecommendUserApiImpl implements RecommendUserApi {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+
+    @Override
+    public RecommendUser queryByUserIdAndToUserId(Long userId, Long toUserId) {
+        Query query = Query.query(Criteria.where("userId").is(userId)
+                .and("toUserId").is(toUserId));
+        RecommendUser user = mongoTemplate.findOne(query, RecommendUser.class);
+        if(user == null){
+            user = new RecommendUser();
+            user.setUserId(userId);
+            user.setToUserId(toUserId);
+            user.setScore(95d);
+        }
+        return user;
+    }
+
     @Override
     public PageResult queryRecommendUserByPage(Integer page, Integer pagesize, Long toUserId) {
         Query query = Query.query(Criteria.where("toUserId").is(toUserId));
