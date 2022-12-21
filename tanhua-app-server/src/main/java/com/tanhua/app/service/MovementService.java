@@ -7,13 +7,17 @@ import com.tanhua.app.interceptor.UserHolder;
 import com.tanhua.autoconfig.template.OssTemplate;
 import com.tanhua.commons.enums.ErrorResult;
 import com.tanhua.commons.utils.Constants;
+import com.tanhua.dubbo.api.CommentApi;
 import com.tanhua.dubbo.api.MovementApi;
 import com.tanhua.dubbo.api.UserInfoApi;
 import com.tanhua.model.domain.UserInfo;
+import com.tanhua.model.enums.CommentType;
+import com.tanhua.model.mongo.Comment;
 import com.tanhua.model.mongo.Movement;
 import com.tanhua.model.vo.MovementsVo;
 import com.tanhua.model.vo.PageResult;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -39,7 +43,100 @@ public class MovementService {
     private UserInfoApi userInfoApi;
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+    @DubboReference
+    private CommentApi commentApi;
 
+
+
+    // 动态喜欢取消
+    public Integer unlove(String movementId) {
+        boolean hasComment = commentApi.hasComment(movementId, UserHolder.getUserId(), CommentType.LOVE);
+        if(! hasComment){
+            // 没有喜欢，则不能取消
+            throw new BusinessException(ErrorResult.disLikeError());
+        }
+        // 删除喜欢评论，返回喜欢数量
+        Comment comment = new Comment();
+        comment.setPublishId(new ObjectId(movementId));
+        comment.setUserId(UserHolder.getUserId());
+        comment.setCommentType(CommentType.LOVE.getType());
+        Integer loveCount = commentApi.delete(comment);
+        // 修改redis状态
+        String key = Constants.MOVEMENTS_INTERACT_KEY + movementId;
+        String hashKey = Constants.MOVEMENT_LOVE_HASHKEY + UserHolder.getUserId();
+        redisTemplate.opsForHash().delete(key, hashKey);
+        return loveCount;
+    }
+
+    // 动态喜欢
+    public Integer love(String movementId) {
+        boolean hasComment = commentApi.hasComment(movementId, UserHolder.getUserId(), CommentType.LOVE);
+        if(hasComment){
+            // 已喜欢，则抛出异常
+            throw new BusinessException(ErrorResult.likeError());
+        }
+        // 保存点赞信息
+        Comment comment = new Comment();
+        comment.setPublishId(new ObjectId(movementId));
+        comment.setCommentType(CommentType.LOVE.getType());
+        comment.setUserId(UserHolder.getUserId());
+        comment.setCreated(System.currentTimeMillis());
+        Integer loveCount = commentApi.save(comment);
+        // 存入redis中
+        String key = Constants.MOVEMENTS_INTERACT_KEY + movementId;
+        String hashKey = Constants.MOVEMENT_LOVE_HASHKEY + UserHolder.getUserId();
+        // 该用户为该动态 已点赞
+        redisTemplate.opsForHash().put(key, hashKey, "1");
+
+        return loveCount;
+    }
+
+    // 动态取消点赞
+    public Integer dislike(String movementId) {
+        boolean hasComment = commentApi.hasComment(movementId, UserHolder.getUserId(), CommentType.LIKE);
+        if(! hasComment){
+            // 没有点赞，则不能取消
+            throw new BusinessException(ErrorResult.disLikeError());
+        }
+        // 删除喜欢评论，返回点赞数量
+        Comment comment = new Comment();
+        comment.setPublishId(new ObjectId(movementId));
+        comment.setUserId(UserHolder.getUserId());
+        comment.setCommentType(CommentType.LIKE.getType());
+        Integer likeCount = commentApi.delete(comment);
+        // 修改redis状态
+        String key = Constants.MOVEMENTS_INTERACT_KEY + movementId;
+        String hashKey = Constants.MOVEMENT_LIKE_HASHKEY + UserHolder.getUserId();
+        redisTemplate.opsForHash().delete(key, hashKey);
+        return likeCount;
+
+    }
+
+    // 动态点赞
+    public Integer like(String movementId) {
+        boolean hasComment = commentApi.hasComment(movementId, UserHolder.getUserId(), CommentType.LIKE);
+        if(hasComment){
+            // 已点赞，则抛出异常
+            throw new BusinessException(ErrorResult.likeError());
+        }
+        // 保存点赞信息
+        Comment comment = new Comment();
+        comment.setPublishId(new ObjectId(movementId));
+        comment.setCommentType(CommentType.LIKE.getType());
+        comment.setUserId(UserHolder.getUserId());
+        comment.setCreated(System.currentTimeMillis());
+        Integer likeCount = commentApi.save(comment);
+        // 存入redis中
+        String key = Constants.MOVEMENTS_INTERACT_KEY + movementId;
+        String hashKey = Constants.MOVEMENT_LIKE_HASHKEY + UserHolder.getUserId();
+        // 该用户为该动态 已点赞
+        redisTemplate.opsForHash().put(key, hashKey, "1");
+
+        return likeCount;
+
+    }
+
+    // 查询单条动态
     public MovementsVo findById(String movementId) {
         Movement movement = movementApi.findById(movementId);
         if(movement == null){
@@ -140,7 +237,6 @@ public class MovementService {
         movement.setMedias(urlList);
         movementApi.publish(movement);
     }
-
 
 
 }

@@ -27,6 +27,42 @@ public class MovementController {
     private MovementService movementService;
 
     /**
+     * 动态喜欢取消
+     */
+    @GetMapping("{id}/unlove")
+    public ResponseEntity unlove(@PathVariable("id") String movementId){
+        Integer loveCount = movementService.unlove(movementId);
+        return ResponseEntity.ok(loveCount);
+    }
+
+    /**
+     * 动态喜欢
+     */
+    @GetMapping("{id}/love")
+    public ResponseEntity love(@PathVariable("id") String movementId){
+        Integer loveCount = movementService.love(movementId);
+        return ResponseEntity.ok(loveCount);
+    }
+
+    /**
+     * 动态点赞取消
+     */
+    @GetMapping("{id}/dislike")
+    public ResponseEntity dislike(@PathVariable("id") String movementId){
+        Integer likeCount = movementService.dislike(movementId);
+        return ResponseEntity.ok(likeCount);
+    }
+
+    /**
+     * 动态点赞
+     */
+    @GetMapping("{id}/like")
+    public ResponseEntity like(@PathVariable("id") String movementId){
+        Integer likeCount = movementService.like(movementId);
+        return ResponseEntity.ok(likeCount);
+    }
+
+    /**
      * 单条动态
      */
     @GetMapping("{id}")

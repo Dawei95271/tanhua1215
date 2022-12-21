@@ -1,6 +1,7 @@
 package com.tanhua.test;
 
 import com.tanhua.app.AppServerApplication;
+import com.tanhua.dubbo.api.CommentApi;
 import com.tanhua.dubbo.api.RecommendUserApi;
 import com.tanhua.model.domain.RecommendUser;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,13 @@ public class MongoTest {
     @DubboReference
     private RecommendUserApi recommendUserApi;
 
+    @DubboReference
+    private CommentApi commentApi;
+
+    @Test
+    public void testCommentApi() {
+//        commentApi.hasComment()
+    }
 
     @Test
     public void testRecommendUser() {
