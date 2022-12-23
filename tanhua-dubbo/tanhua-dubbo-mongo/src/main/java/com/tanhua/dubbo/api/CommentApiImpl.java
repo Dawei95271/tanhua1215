@@ -3,6 +3,7 @@ package com.tanhua.dubbo.api;
 import com.tanhua.model.enums.CommentType;
 import com.tanhua.model.mongo.Comment;
 import com.tanhua.model.mongo.Movement;
+import com.tanhua.model.vo.PageResult;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,13 +95,19 @@ public class CommentApiImpl implements CommentApi{
     }
 
     @Override
-    public List<Comment> findComments(String movementId, CommentType comment, Integer page, Integer pagesize) {
+    public PageResult findComments(String movementId, CommentType comment, Integer page, Integer pagesize) {
         Criteria criteria = Criteria.where("publishId").is(new ObjectId(movementId))
                 .and("commentType").is(comment.getType());
-        Query query = Query.query(criteria).skip((page - 1) * pagesize).limit(pagesize)
+        Query query = Query.query(criteria);
+
+        long count = mongoTemplate.count(query, Comment.class);
+
+        query.skip((page - 1) * pagesize).limit(pagesize)
                 .with(Sort.by(Sort.Order.desc("created")));
 
-        return mongoTemplate.find(query, Comment.class);
+        List<Comment> comments = mongoTemplate.find(query, Comment.class);
+
+        return new PageResult(page, pagesize, count, comments);
     }
 
 

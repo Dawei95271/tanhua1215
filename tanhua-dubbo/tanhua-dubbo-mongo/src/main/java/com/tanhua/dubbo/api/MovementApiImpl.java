@@ -37,6 +37,21 @@ public class MovementApiImpl implements MovementApi{
     private TimeLineService timeLineService;
 
     @Override
+    public PageResult findMovementByUidAndState(Long uid, Integer state, Integer page, Integer pagesize) {
+        Query query = new Query();
+        if(uid != null){
+            query.addCriteria(Criteria.where("userId").is(uid));
+        }
+        if(state != null){
+            query.addCriteria(Criteria.where("state").is(state));
+        }
+        long count = mongoTemplate.count(query, Movement.class);
+        List<Movement> list = mongoTemplate.find(query, Movement.class);
+
+        return new PageResult(page, pagesize, count, list);
+    }
+
+    @Override
     public Movement findById(String movementId) {
         return mongoTemplate.findById(movementId, Movement.class);
     }

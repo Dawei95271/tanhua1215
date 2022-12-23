@@ -28,6 +28,8 @@ public class CommentVo implements Serializable {
     private Integer likeCount; //点赞数
     private Integer hasLiked; //是否点赞（1是，0否）
 
+    private Long userId;           //评论人
+
     public static CommentVo init(UserInfo userInfo, Comment item) {
         CommentVo vo = new CommentVo();
         BeanUtils.copyProperties(userInfo, vo);

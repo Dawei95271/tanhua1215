@@ -2,6 +2,7 @@ package com.tanhua.dubbo.api;
 
 import com.tanhua.dubbo.utils.IdWorker;
 import com.tanhua.model.mongo.Video;
+import com.tanhua.model.vo.PageResult;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -24,6 +25,15 @@ public class VideoApiImpl implements VideoApi{
     @Autowired
     private IdWorker idWorker;
 
+    @Override
+    public PageResult queryVideosByUid(Long uid, Integer page, Integer pagesize) {
+        Query query = Query.query(Criteria.where("userId").is(uid));
+        long count = mongoTemplate.count(query, Video.class);
+        query.skip((page - 1) * pagesize).limit(pagesize)
+                .with(Sort.by(Sort.Order.desc("created")));
+        List<Video> videos = mongoTemplate.find(query, Video.class);
+        return new PageResult(page, pagesize, count, videos);
+    }
 
     @Override
     public List<Video> queryVideos(Integer page, Integer pagesize) {

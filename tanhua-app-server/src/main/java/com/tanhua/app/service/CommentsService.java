@@ -53,24 +53,26 @@ public class CommentsService {
     }
 
     public PageResult findComments(String movementId, Integer page, Integer pagesize) {
-        List<Comment> list = commentApi.findComments(movementId, CommentType.COMMENT, page, pagesize);
+        PageResult pr = commentApi.findComments(movementId, CommentType.COMMENT, page, pagesize);
+        List<Comment> items = (List<Comment>) pr.getItems();
         // 查询不到返回空
-        if(CollUtil.isEmpty(list)){
+        if(CollUtil.isEmpty(items)){
             return new PageResult();
         }
-        List<Long> userIds = CollUtil.getFieldValues(list, "userId", Long.class);
+        List<Long> userIds = CollUtil.getFieldValues(items, "userId", Long.class);
         Map<Long, UserInfo> infoMap = userInfoApi.findByIds(userIds, null);
         // 构建vo对象
 //        List<CommentVo> vos = Collections.emptyList(); // 这个没有添加和删除方法
         List<CommentVo> vos = new ArrayList<>();
-        for (Comment comment : list) {
+        for (Comment comment : items) {
             UserInfo userInfo = infoMap.get(comment.getUserId());
             if(userInfo != null){
                 CommentVo vo = CommentVo.init(userInfo, comment);
                 vos.add(vo);
             }
         }
-        return new PageResult(page, pagesize, 0l, vos);
+        pr.setItems(vos);
+        return pr;
     }
 
 

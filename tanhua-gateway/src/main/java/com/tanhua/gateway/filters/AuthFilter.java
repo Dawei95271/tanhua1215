@@ -39,11 +39,13 @@ public class AuthFilter implements GlobalFilter, Ordered {
         excludeUrls.forEach(System.out:: println);
         // 登录直接放行
         if(excludeUrls.contains(path)){
-            chain.filter(exchange);
+            // 放行
+            return chain.filter(exchange);
         }
         String token = exchange.getRequest().getHeaders().getFirst("Authorization");
-        // 清理token
-        if(!StrUtil.isNotEmpty(token)){
+
+        // 清理token, 登录之后token不为空
+        if(StrUtil.isNotEmpty(token)){
             token = token.replace("Bearer ", "");
         }
         // 鉴权

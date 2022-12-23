@@ -1,5 +1,6 @@
 package com.tanhua.dubbo.api;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.tanhua.model.domain.UserInfo;
 
 import java.util.List;
@@ -18,4 +19,7 @@ public interface UserInfoApi {
 
     // 根据ids，获取map集合
     Map<Long, UserInfo> findByIds(List<Long> ids, UserInfo info);
+
+    // 分页查询用户
+    IPage<UserInfo> findAllByPage(Integer page, Integer pagesize);
 }

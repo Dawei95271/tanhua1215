@@ -2,6 +2,8 @@ package com.tanhua.commons.utils;
 
 //常量定义
 public class Constants {
+    // 浏览器验证码
+    public static final String CAP_CODE = "CAP:CODE:";
 
     // 不喜欢
     public static final String USER_NOT_LIKE_KEY = "USER:NOTLIKE:";
