@@ -10,14 +10,21 @@ import com.tanhua.commons.utils.Constants;
 import com.tanhua.dubbo.api.QuestionsApi;
 import com.tanhua.dubbo.api.RecommendUserApi;
 import com.tanhua.dubbo.api.UserInfoApi;
+import com.tanhua.dubbo.api.UserLikeApi;
 import com.tanhua.model.domain.Question;
 import com.tanhua.model.domain.RecommendUser;
 import com.tanhua.model.domain.UserInfo;
 import com.tanhua.model.dto.RecommendUserDto;
+import com.tanhua.model.mongo.UserLocation;
+import com.tanhua.model.vo.NearUserVo;
 import com.tanhua.model.vo.PageResult;
 import com.tanhua.model.vo.TodayBest;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,6 +48,108 @@ public class TanhuaService {
     private QuestionsApi questionsApi;
     @Autowired
     private HuanXinTemplate huanXinTemplate;
+    @DubboReference
+    private UserLikeApi  userLikeApi;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    private MessagesService messagesService;
+
+    @Value("${tanhua.default.recommend.users}")
+    private String recommendUser;
+
+    // 搜附近
+    public List<NearUserVo> search(String gender, String distance) {
+        // 查询附近用户
+        List<Long> ids = userLikeApi.queryNear(UserHolder.getUserId(), Double.valueOf(distance));
+        if(CollUtil.isEmpty(ids)){
+            return null;
+        }
+        // 查询用户信息
+        UserInfo info = new UserInfo();
+        info.setGender(gender);
+        Map<Long, UserInfo> infoMap = userInfoApi.findByIds(ids, info);
+        // 封装vo返回
+        List<NearUserVo> vos = new ArrayList<>();
+        for (Long id : ids) {
+            UserInfo userInfo = infoMap.get(id);
+            if(id == UserHolder.getUserId()){
+                // 排除自己
+                continue;
+            }
+            if(userInfo != null){
+                NearUserVo vo = NearUserVo.init(userInfo);
+                vos.add(vo);
+            }
+        }
+        return vos;
+    }
+
+    // 喜欢
+    public void likeUser(Long likeUserId) {
+        Boolean save = userLikeApi.saveOrUpdate(UserHolder.getUserId(), likeUserId, true);
+        if(! save){
+            throw new BusinessException(ErrorResult.error());
+        }
+        // 修改redis中数据
+        redisTemplate.opsForSet().remove(Constants.USER_NOT_LIKE_KEY + UserHolder.getUserId(), likeUserId.toString());
+        redisTemplate.opsForSet().add(Constants.USER_LIKE_KEY + UserHolder.getUserId(), likeUserId.toString());
+        // 双向喜欢，则添加好友关系
+        if(isLike(likeUserId, UserHolder.getUserId())){
+            messagesService.contacts(likeUserId);
+        }
+    }
+
+
+
+    // 不喜欢
+    public void notLikeUser(Long likeUserId) {
+        Boolean save = userLikeApi.saveOrUpdate(UserHolder.getUserId(), likeUserId, false);
+        if(! save){
+            throw new BusinessException(ErrorResult.error());
+        }
+        redisTemplate.opsForSet().remove(Constants.USER_LIKE_KEY + UserHolder.getUserId(), likeUserId.toString());
+        redisTemplate.opsForSet().add(Constants.USER_NOT_LIKE_KEY + UserHolder.getUserId(), likeUserId.toString());
+
+    }
+
+    // 判断对方是否喜欢我
+    private boolean isLike(Long likeUserId, Long userId) {
+        String key = Constants.USER_LIKE_KEY + likeUserId;
+        return redisTemplate.opsForSet().isMember(key, userId.toString());
+    }
+
+
+
+    // 探花-左滑右滑
+    public List<TodayBest> carts() {
+        // 获取推荐用户列表
+        List<RecommendUser> users = recommendUserApi.queryCartsList(UserHolder.getUserId(), 10);
+        if(CollUtil.isEmpty(users)){
+            users = new ArrayList<>();
+            String[] userIds = recommendUser.split(",");
+            for (String userId : userIds) {
+                RecommendUser user = new RecommendUser();
+                user.setUserId(Long.parseLong(userId));
+                user.setToUserId(UserHolder.getUserId());
+                user.setScore(RandomUtils.nextDouble(70, 95));
+                users.add(user);
+            }
+        }
+        // 构造vo返回
+        List<Long> ids = CollUtil.getFieldValues(users, "userId", Long.class);
+        Map<Long, UserInfo> infoMap = userInfoApi.findByIds(ids, null);
+
+        List<TodayBest> list = new ArrayList<>();
+        for (RecommendUser user : users) {
+            UserInfo userInfo = infoMap.get(user.getUserId());
+            if(userInfo != null){
+                TodayBest vo = TodayBest.init(userInfo, user);
+                list.add(vo);
+            }
+        }
+        return list;
+    }
 
     // 回复陌生人问题
     public void strangerQuestions(Long userId, String reply) {

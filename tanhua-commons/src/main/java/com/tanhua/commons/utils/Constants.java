@@ -3,6 +3,11 @@ package com.tanhua.commons.utils;
 //常量定义
 public class Constants {
 
+    // 不喜欢
+    public static final String USER_NOT_LIKE_KEY = "USER:NOTLIKE:";
+    // 喜欢
+    public static final String USER_LIKE_KEY = "USER:LIKE:";
+
     //手机APP短信验证码CHECK_CODE_
     public static final String SMS_CODE = "CHECK:CODE:";
 

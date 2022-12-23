@@ -3,6 +3,8 @@ package com.tanhua.dubbo.api;
 import com.tanhua.model.domain.RecommendUser;
 import com.tanhua.model.vo.PageResult;
 
+import java.util.List;
+
 public interface RecommendUserApi {
 
     // 查询今日佳人
@@ -13,4 +15,7 @@ public interface RecommendUserApi {
 
     // 根据userId 、 toUserId查询
     RecommendUser queryByUserIdAndToUserId(Long userId, Long toUserId);
+
+    // 获取推荐列表（排除喜欢、不喜欢用户）
+    List<RecommendUser> queryCartsList(Long userId, Integer count);
 }
