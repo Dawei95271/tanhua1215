@@ -1,5 +1,0 @@
-spring:
-  application:
-    name: tanhua-dubbo-db
-  profiles:
-    active: dev

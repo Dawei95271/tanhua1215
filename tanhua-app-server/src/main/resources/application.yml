@@ -1,5 +1,0 @@
-spring:
-  application:
-    name: tanhua-app-server
-  profiles:
-    active: dev #开发环境

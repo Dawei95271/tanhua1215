@@ -19,12 +19,13 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = request.getHeader("Authorization");
-        boolean ret = JwtUtils.verifyToken(token);
-        if(! ret){
-            // token不正确，直接返回
-            response.setStatus(401);
-            return false;
-        }
+        // 网关已经鉴权
+//        boolean ret = JwtUtils.verifyToken(token);
+//        if(! ret){
+//            // token不正确，直接返回
+//            response.setStatus(401);
+//            return false;
+//        }
         // 放行
         Claims claims = JwtUtils.getClaims(token);
         String mobile = (String) claims.get("mobile");

@@ -10,14 +10,18 @@ import com.tanhua.commons.utils.Constants;
 import com.tanhua.dubbo.api.CommentApi;
 import com.tanhua.dubbo.api.MovementApi;
 import com.tanhua.dubbo.api.UserInfoApi;
+import com.tanhua.dubbo.api.VisitorsApi;
 import com.tanhua.model.domain.UserInfo;
 import com.tanhua.model.enums.CommentType;
 import com.tanhua.model.mongo.Comment;
 import com.tanhua.model.mongo.Movement;
+import com.tanhua.model.mongo.Visitors;
 import com.tanhua.model.vo.MovementsVo;
 import com.tanhua.model.vo.PageResult;
+import com.tanhua.model.vo.VisitorsVo;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.bson.types.ObjectId;
+import org.dom4j.Visitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -45,6 +49,8 @@ public class MovementService {
     private RedisTemplate<String, String> redisTemplate;
     @DubboReference
     private CommentApi commentApi;
+    @DubboReference
+    private VisitorsApi visitorsApi;
 
 
 
@@ -237,6 +243,51 @@ public class MovementService {
         movement.setMedias(urlList);
         movementApi.publish(movement);
     }
+
+
+    // 首页-访问列表
+    public List<VisitorsVo> queryVisitorsList() {
+        // 获取redis中的最后一次查看访问列表的时间
+        String key = Constants.VISITORS_USER;
+        String hashKey = UserHolder.getUserId().toString();
+        String value =(String) redisTemplate.opsForHash().get(key, hashKey);
+
+        Long date = StrUtil.isEmpty(value) ? null : Long.valueOf(value);
+        // 查询访客
+        List<Visitors> visitors = visitorsApi.queryVisitors(UserHolder.getUserId(), date);
+        if(CollUtil.isEmpty(visitors)){
+            return new ArrayList<>();
+        }
+        // 构造vo
+        List<Long> ids = CollUtil.getFieldValues(visitors, "visitorUserId", Long.class);
+        Map<Long, UserInfo> infoMap = userInfoApi.findByIds(ids, null);
+        List<VisitorsVo> vos = new ArrayList<>();
+        for (Visitors visitor : visitors) {
+            UserInfo userInfo = infoMap.get(visitor.getVisitorUserId());
+            if (userInfo != null){
+                VisitorsVo vo = VisitorsVo.init(userInfo, visitor);
+                vos.add(vo);
+            }
+        }
+
+        return vos;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

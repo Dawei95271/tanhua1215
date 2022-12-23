@@ -36,7 +36,7 @@ public class LoginService {
     private RedisTemplate<String, String> redisTemplate;
     @DubboReference
     private UserApi userApi;
-    @Autowired
+    @Autowired(required = false)
     private HuanXinTemplate huanXinTemplate;
 
     // 验证登录

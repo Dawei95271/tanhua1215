@@ -30,10 +30,10 @@ public class Constants {
     public static final String MOVEMENT_LOVE_HASHKEY = "MOVEMENT:LOVE:";
 
     //视频点赞用户HashKey
-    public static final String VIDEO_LIKE_HASHKEY = "VIDEO:LIKE";
+    public static final String VIDEO_LIKE_HASHKEY = "VIDEO:LIKE:";
 
     //访问用户
-    public static final String VISITORS = "VISITORS";
+    public static final String VISITORS_USER = "VISITORS:";
 
     //关注用户
     public static final String FOCUS_USER = "FOCUS:USER:{}:{}";

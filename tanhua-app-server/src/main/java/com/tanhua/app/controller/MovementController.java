@@ -4,6 +4,7 @@ import com.tanhua.app.service.MovementService;
 import com.tanhua.model.mongo.Movement;
 import com.tanhua.model.vo.MovementsVo;
 import com.tanhua.model.vo.PageResult;
+import com.tanhua.model.vo.VisitorsVo;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.annotation.MultipartConfig;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @description:
@@ -25,6 +27,15 @@ public class MovementController {
 
     @Autowired
     private MovementService movementService;
+
+    /**
+     * 谁看过我
+     */
+    @GetMapping("visitors")
+    public ResponseEntity queryVisitorsList(){
+        List<VisitorsVo> list = movementService.queryVisitorsList();
+        return ResponseEntity.ok(list);
+    }
 
     /**
      * 动态喜欢取消
